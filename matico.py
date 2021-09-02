@@ -19,7 +19,7 @@ with open(os.path.dirname(__file__) + '/codepoints.json') as file:
 names = []
 for line in sys.stdin:
     names.extend([name.strip() for name in line.split(',')])
-names = set([name for name in names if name in codepoints])
+names = sorted(set([name for name in names if name in codepoints]))
 
 if len(names) == 1:
     print("Input is empty", file=sys.stderr)
