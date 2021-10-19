@@ -3,6 +3,7 @@ import os
 import re
 import sys
 import urllib.request
+import argparse
 
 GOOGLE_FONTS_LINK = 'http://fonts.googleapis.com/css?family=Material+Icons+Outlined'
 OUTPUT_FONT_NAME = 'icon'
@@ -12,6 +13,10 @@ USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Ge
 def encode_codepoint(code):
     return ''.join('%' + "%0.2X" % x for x in (chr(int(code, 16)).encode('utf8')))
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--name', default=OUTPUT_FONT_NAME, help="Name of result font and font file")
+args = parser.parse_args()
 
 with open(os.path.dirname(__file__) + '/codepoints.json') as file:
     codepoints = json.load(file)
@@ -28,7 +33,7 @@ if len(names) == 1:
 text_part = ''
 data = {}
 for name in names:
-    print(".%s-%s:before {\n content: '\\%s';  \n}" % (OUTPUT_FONT_NAME, name, codepoints[name]))
+    print(".%s-%s:before {\n    content: '\\%s';\n}\n" % (args.name, name, codepoints[name]))
     text_part += encode_codepoint(codepoints[name])
 
 req = urllib.request.Request(
@@ -45,5 +50,5 @@ p = re.compile(r"url\((.*)\)\s", re.RegexFlag.MULTILINE)
 woff2 = p.search(content).group(1)
 
 with urllib.request.urlopen(woff2) as f:
-    with open(OUTPUT_FONT_NAME + '.woff2', 'wb') as output:
+    with open(args.name + '.woff2', 'wb') as output:
         output.write(f.read())
